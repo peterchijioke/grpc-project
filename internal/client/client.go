@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"grpc-project/api/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"grpc-project/api/proto"
 )
 
 type AuthClient interface {
@@ -21,9 +21,9 @@ type GreeterClient interface {
 }
 
 type Client struct {
-	conn   *grpc.ClientConn
+	conn    *grpc.ClientConn
 	greeter proto.GreeterClient
-	auth   proto.AuthClient
+	auth    proto.AuthClient
 }
 
 func Connect(addr string) (*Client, error) {
@@ -33,9 +33,9 @@ func Connect(addr string) (*Client, error) {
 	}
 
 	return &Client{
-		conn:   conn,
+		conn:    conn,
 		greeter: proto.NewGreeterClient(conn),
-		auth:   proto.NewAuthClient(conn),
+		auth:    proto.NewAuthClient(conn),
 	}, nil
 }
 

@@ -18,10 +18,10 @@ var testDB *gorm.DB
 
 func TestMain(m *testing.M) {
 	// Attempt to connect to test database
-	host := getEnv("DB_HOST", "localhost")
-	port := getEnv("DB_PORT", "5432")
-	user := getEnv("DB_USER", "postgres")
-	password := getEnv("DB_PASSWORD", "password")
+	host := testGetEnv("DB_HOST", "localhost")
+	port := testGetEnv("DB_PORT", "5432")
+	user := testGetEnv("DB_USER", "postgres")
+	password := testGetEnv("DB_PASSWORD", "password")
 	dbname := "grpc_auth_test"
 
 	dsn := getDSN(host, port, user, password, dbname)
@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func getEnv(key, defaultValue string) string {
+func testGetEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}

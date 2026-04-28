@@ -5,11 +5,11 @@ import (
 	"log"
 	"net"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"grpc-project/api/proto"
 	"grpc-project/internal/auth"
 	"grpc-project/internal/db"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 type GreeterServer struct {
@@ -80,4 +80,3 @@ func StartServer(port string) error {
 	log.Printf("Server listening on %s", port)
 	return s.Serve(lis)
 }
-

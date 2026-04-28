@@ -5,10 +5,10 @@ import (
 	"log"
 	"os"
 
-	"grpc-project/internal/store"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"grpc-project/internal/store"
 )
 
 var DB *gorm.DB

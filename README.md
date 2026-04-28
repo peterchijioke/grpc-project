@@ -24,6 +24,44 @@ A production-ready Go gRPC application with authentication (signup/login), unary
 │       ├── greeter.proto
 │       ├── auth.proto
 │       ├── greeter.pb.go           # Generated Go code
+│       ├── greeter_grpc.pb.go
+│       ├── auth.pb.go
+│       └── auth_grpc.pb.go
+├── cmd/
+│   ├── server/                  # Server entry point
+│   │   └── main.go
+│   └── client/                  # Client entry point
+│       └── main.go
+├── internal/
+│   ├── server/                  # Server orchestration
+│   │   └── server.go
+│   ├── auth/                    # Authentication service
+│   │   ├── auth.go
+│   │   └── auth_test.go
+│   ├── client/                  # Client helpers
+│   │   └── client.go
+│   ├── db/                      # Database connection
+│   │   └── db.go
+│   └── store/                   # Data models
+│       └── user.go
+├── configs/                     # Configuration files
+├── scripts/                     # Helper scripts
+│   └── init.sql                 # DB init SQL
+├── Dockerfile
+├── docker-compose.yml
+├── Makefile
+├── .env.example
+├── .gitignore
+├── go.mod
+├── go.sum
+└── README.md
+```
+.
+├── api/
+│   └── proto/                   # Protocol Buffer definitions
+│       ├── greeter.proto
+│       ├── auth.proto
+│       ├── greeter.pb.go           # Generated Go code
 │       ├── greeter_grpc.pb.go      # Generated gRPC code
 │       ├── auth.pb.go
 │       └── auth_grpc.pb.go
