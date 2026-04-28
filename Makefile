@@ -39,13 +39,13 @@ clean:
 	rm -rf *.test *.out coverage.*
 
 docker-build:
-	docker build -t grpc-server .
+	docker build --no-cache -t grpc-server .
 
 docker-run:
 	docker run -p 50051:50051 grpc-server
 
 docker-compose-up:
-	docker-compose up -d
+	docker-compose build --no-cache && docker-compose up -d
 
 docker-compose-down:
 	docker-compose down

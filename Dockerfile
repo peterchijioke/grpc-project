@@ -1,7 +1,11 @@
 # Build stage
-FROM golang:1.23-alpine AS builder
+ARG GO_VERSION=1.25
+FROM golang:${GO_VERSION}-alpine AS builder
 
 WORKDIR /app
+
+# Ensure we use the correct Go toolchain
+ENV GOTOOLCHAIN=auto
 
 COPY go.mod go.sum ./
 RUN go mod download

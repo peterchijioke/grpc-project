@@ -104,7 +104,7 @@ A production-ready Go gRPC application with authentication (signup/login), unary
 
 ## Prerequisites
 
-- Go 1.21+ (tested on 1.23)
+- Go 1.25 or higher
 - Protocol Buffers compiler (`protoc`)
 - Protocol Buffers Go plugins
 
