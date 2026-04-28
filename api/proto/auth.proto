@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "grpc-project/api/proto";
+
+import "google/protobuf/timestamp.proto";
+
+service Auth {
+  rpc Signup (SignupRequest) returns (SignupResponse) {}
+  rpc Login (LoginRequest) returns (LoginResponse) {}
+}
+
+message SignupRequest {
+  string email = 1;
+  string password = 2;
+  string name = 3;
+}
+
+message SignupResponse {
+  string user_id = 1;
+  string email = 2;
+  string name = 3;
+  string token = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string user_id = 1;
+  string email = 2;
+  string name = 3;
+  string token = 4;
+}
