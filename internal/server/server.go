@@ -2,14 +2,18 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
+	"strings"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"grpc-project/api/proto"
 	"grpc-project/internal/auth"
 	"grpc-project/internal/db"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 type GreeterServer struct {
@@ -28,16 +32,26 @@ func NewAuthServer() *AuthServer {
 }
 
 func (s *GreeterServer) SayHello(ctx context.Context, req *proto.HelloRequest) (*proto.HelloReply, error) {
-	log.Printf("Received request from: %s", req.GetName())
+	if err := validateHelloRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	name := strings.TrimSpace(req.GetName())
+	log.Printf("Received request from: %s", name)
 	return &proto.HelloReply{
-		Message: "Hello, " + req.GetName() + "!",
+		Message: "Hello, " + name + "!",
 	}, nil
 }
 
 func (s *GreeterServer) SayHelloStream(req *proto.HelloRequest, stream proto.Greeter_SayHelloStreamServer) error {
-	log.Printf("Stream request from: %s", req.GetName())
+	if err := validateHelloRequest(req); err != nil {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	name := strings.TrimSpace(req.GetName())
+	log.Printf("Stream request from: %s", name)
 	messages := []string{
-		"Hello, " + req.GetName() + "!",
+		"Hello, " + name + "!",
 		"Nice to meet you!",
 		"Welcome to gRPC!",
 		"Goodbye!",
@@ -48,6 +62,22 @@ func (s *GreeterServer) SayHelloStream(req *proto.HelloRequest, stream proto.Gre
 			return err
 		}
 	}
+	return nil
+}
+
+func validateHelloRequest(req *proto.HelloRequest) error {
+	if req == nil {
+		return fmt.Errorf("request cannot be nil")
+	}
+
+	name := strings.TrimSpace(req.Name)
+	if name == "" {
+		return fmt.Errorf("name is required")
+	}
+	if len(name) > 100 {
+		return fmt.Errorf("name must be less than 100 characters")
+	}
+
 	return nil
 }
 

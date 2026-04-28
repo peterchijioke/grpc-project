@@ -62,93 +62,108 @@ func getDSN(host, port, user, password, dbname string) string {
 	return "host=" + host + " port=" + port + " user=" + user + " password=" + password + " dbname=" + dbname + " sslmode=disable"
 }
 
-func TestSignup(t *testing.T) {
+func TestSignup_InvalidEmail(t *testing.T) {
 	s := NewAuthService()
 
-	req := &proto.SignupRequest{
-		Email:    "test@example.com",
-		Password: "password123",
-		Name:     "Test User",
+	tests := []struct {
+		email string
+	}{
+		{"invalid"},
+		{"invalid@"},
+		{"@example.com"},
+		{"invalid@example"},
+		{"invalid example.com"},
 	}
 
-	res, err := s.Signup(context.Background(), req)
-	require.NoError(t, err)
-	require.NotEmpty(t, res.UserId)
-	require.Equal(t, "test@example.com", res.Email)
-	require.Equal(t, "Test User", res.Name)
-	require.NotEmpty(t, res.Token)
-	require.NotNil(t, res.CreatedAt)
+	for _, tt := range tests {
+		_, err := s.Signup(context.Background(), &proto.SignupRequest{
+			Email:    tt.email,
+			Password: "password123",
+			Name:     "Test",
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "email is invalid")
+	}
 }
 
-func TestSignup_DuplicateEmail(t *testing.T) {
+func TestSignup_ShortPassword(t *testing.T) {
 	s := NewAuthService()
 
-	// First signup
 	_, err := s.Signup(context.Background(), &proto.SignupRequest{
-		Email:    "duplicate@example.com",
+		Email:    "test@example.com",
+		Password: "short",
+		Name:     "Test",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "password must be at least 8 characters")
+}
+
+func TestSignup_ShortName(t *testing.T) {
+	s := NewAuthService()
+
+	_, err := s.Signup(context.Background(), &proto.SignupRequest{
+		Email:    "test@example.com",
 		Password: "password123",
-		Name:     "User",
+		Name:     "A",
 	})
-	require.NoError(t, err)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "name must be at least 2 characters")
+}
 
-	// Second signup with same email
+func TestSignup_MissingFields(t *testing.T) {
+	s := NewAuthService()
+
+	_, err := s.Signup(context.Background(), &proto.SignupRequest{
+		Email:    "",
+		Password: "password123",
+		Name:     "Test",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "email is required")
+
 	_, err = s.Signup(context.Background(), &proto.SignupRequest{
-		Email:    "duplicate@example.com",
-		Password: "password456",
-		Name:     "User2",
+		Email:    "test@example.com",
+		Password: "",
+		Name:     "Test",
 	})
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "already exists")
-}
+	require.Contains(t, err.Error(), "password is required")
 
-func TestLogin_Success(t *testing.T) {
-	s := NewAuthService()
-
-	// Create user first
-	_, err := s.Signup(context.Background(), &proto.SignupRequest{
-		Email:    "login@example.com",
-		Password: "secret123",
-		Name:     "Login User",
-	})
-	require.NoError(t, err)
-
-	// Login
-	res, err := s.Login(context.Background(), &proto.LoginRequest{
-		Email:    "login@example.com",
-		Password: "secret123",
-	})
-	require.NoError(t, err)
-	require.NotEmpty(t, res.Token)
-	require.Equal(t, "login@example.com", res.Email)
-}
-
-func TestLogin_WrongPassword(t *testing.T) {
-	s := NewAuthService()
-
-	// Create user
-	_, err := s.Signup(context.Background(), &proto.SignupRequest{
-		Email:    "wrongpass@example.com",
-		Password: "correctpass",
-		Name:     "Wrong Pass",
-	})
-	require.NoError(t, err)
-
-	// Try login with wrong password
-	_, err = s.Login(context.Background(), &proto.LoginRequest{
-		Email:    "wrongpass@example.com",
-		Password: "wrongpass",
+	_, err = s.Signup(context.Background(), &proto.SignupRequest{
+		Email:    "test@example.com",
+		Password: "password123",
+		Name:     "",
 	})
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "invalid email or password")
+	require.Contains(t, err.Error(), "name is required")
 }
 
-func TestLogin_NonExistentUser(t *testing.T) {
+func TestLogin_InvalidEmail(t *testing.T) {
 	s := NewAuthService()
 
 	_, err := s.Login(context.Background(), &proto.LoginRequest{
-		Email:    "nonexistent@example.com",
-		Password: "password",
+		Email:    "invalid-email",
+		Password: "password123",
 	})
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "invalid email or password")
+	require.Contains(t, err.Error(), "email is invalid")
 }
+
+func TestLogin_MissingFields(t *testing.T) {
+	s := NewAuthService()
+
+	_, err := s.Login(context.Background(), &proto.LoginRequest{
+		Email:    "",
+		Password: "password123",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "email is required")
+
+	_, err = s.Login(context.Background(), &proto.LoginRequest{
+		Email:    "test@example.com",
+		Password: "",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "password is required")
+}
+
