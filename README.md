@@ -13,6 +13,7 @@ A production-ready Go gRPC application with authentication (signup/login), unary
 - [Running Locally](#running-locally)
 - [API Reference](#api-reference)
 - [Testing](#testing)
+- [Contributing](#contributing)
 - [Adding New Services](#adding-new-services)
 
 ## Project Structure
@@ -56,41 +57,6 @@ A production-ready Go gRPC application with authentication (signup/login), unary
 ├── go.sum
 └── README.md
 ```
-.
-├── api/
-│   └── proto/                   # Protocol Buffer definitions
-│       ├── greeter.proto
-│       ├── auth.proto
-│       ├── greeter.pb.go           # Generated Go code
-│       ├── greeter_grpc.pb.go      # Generated gRPC code
-│       ├── auth.pb.go
-│       └── auth_grpc.pb.go
-├── cmd/
-│   ├── server/                  # Server entry point
-│   │   └── main.go
-│   └── client/                  # Client entry point
-│       └── main.go
-├── internal/
-│   ├── server/                  # Server implementation
-│   │   └── server.go
-│   ├── client/                  # Client implementation
-│   │   └── client.go
-│   ├── auth/                    # Auth service
-│   │   └── auth.go
-│   ├── db/                      # Database connection
-│   │   └── db.go
-│   └── store/                   # Data models
-│       └── user.go
-├── configs/                     # Configuration files
-├── scripts/                     # Helper scripts
-│   └── init.sql                 # Database initialization
-├── Dockerfile
-├── docker-compose.yml
-├── Makefile
-├── .env.example
-├── .gitignore
-└── README.md
-```
 
 ## Features
 
@@ -104,9 +70,10 @@ A production-ready Go gRPC application with authentication (signup/login), unary
 
 ## Prerequisites
 
-- Go 1.25 or higher
+- Go 1.23 or higher
 - Protocol Buffers compiler (`protoc`)
 - Protocol Buffers Go plugins
+- PostgreSQL (if running locally, otherwise use Docker)
 
 ### Install Dependencies
 
@@ -128,6 +95,7 @@ Environment variables (use `.env` file for local dev):
 
 | Variable      | Default               | Description              |
 |---------------|----------------------|--------------------------|
+| `APP_ENV`     | `development`        | Application environment (development/production) |
 | `GRPC_PORT`   | `50051`              | gRPC server port         |
 | `DB_HOST`     | `localhost`          | PostgreSQL host          |
 | `DB_PORT`     | `5432`               | PostgreSQL port          |
@@ -169,7 +137,7 @@ make docker-compose-down
 
 Services start on:
 - gRPC server: `localhost:50051`
-- PostgreSQL: `localhost:5432`
+- PostgreSQL: `localhost:55432` (mapped from container port 5432)
 
 ### Build and Run Server Only
 
@@ -355,6 +323,21 @@ make test
 go test -v ./...
 ```
 
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Workflow
+
+- Generate gRPC code after modifying proto files: `make generate`
+- Run tests before committing: `make test`
+- Format code: `go fmt ./...`
+- Check for lint issues: `go vet ./...`
+
 ## Adding New Services
 
 1. Create a new `.proto` file in `api/proto/`
@@ -393,6 +376,7 @@ docker-compose build --no-cache grpc-server
 **Database connection errors:**
 - Ensure PostgreSQL is running: `docker-compose ps`
 - Check credentials in `.env` or docker-compose.yml
+- Note: PostgreSQL in docker-compose runs on port 55432 on the host (mapped from container port 5432)
 - DB might need time to start; docker-compose healthcheck handles this
 
 **Port already in use:**
